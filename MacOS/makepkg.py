@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 
 #
-# Copyright (c) 2011 Simone Basso <bassosimone@gmail.com>,
-#  NEXA Center for Internet & Society at Politecnico di Torino
+# Copyright (c) 2011-2012
+#     Nexa Center for Internet & Society, Politecnico di Torino (DAUIN)
+#     and Simone Basso <bassosimone@gmail.com>
 #
 # This file is part of Neubot <http://www.neubot.org/>.
 #
@@ -21,8 +22,8 @@
 #
 
 '''
- Creates neubot-VERSION.pkg for MacOSX and, while there, also
- generates the update tarball for autoupdating clients.
+ Creates neubot-VERSION.pkg for MacOSX and generates the update tarball for
+ auto-updating Neubots.
 '''
 
 import traceback
@@ -97,7 +98,7 @@ def _make_sharedir():
 
     # Copy neubot sources
     shutil.copytree(
-                    '../neubot/',
+                    '../neubot-%s/neubot' % VERSION,
                     'neubot/%s/neubot' % NUMERIC_VERSION,
                     ignore=IGNORER
                    )
@@ -131,7 +132,8 @@ def _make_sharedir():
                    )
 
     # Add manual page(s)
-    shutil.copy('../UNIX/man/man1/neubot.1', 'neubot/%s' % NUMERIC_VERSION)
+    shutil.copy('../neubot-%s/UNIX/man/man1/neubot.1' % VERSION,
+                'neubot/%s' % NUMERIC_VERSION)
 
 def _add_okfile():
     ''' Add okfile to VERSIONDIR '''
