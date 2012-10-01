@@ -44,8 +44,8 @@ TOPDIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MACOSDIR = os.sep.join([TOPDIR, 'MacOS'])
 os.chdir(MACOSDIR)
 
-VERSION = '0.4.15'
-NUMERIC_VERSION = '0.004015999'
+VERSION = sys.argv[1]
+NUMERIC_VERSION = sys.argv[2]
 
 IGNORER = shutil.ignore_patterns('.DS_Store')
 
@@ -261,10 +261,9 @@ def _create_tarball():
     arch.close()
 
 def main():
-    ''' Make the package or clean '''
+    ''' Main function '''
+
     _init()
-    if len(sys.argv) == 2 and sys.argv[1] == '--clean':
-        sys.exit(0)
     _make_package()
 
     #
