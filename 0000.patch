@@ -5,9 +5,8 @@ index 539c433..28aec29 100644
 --- a/neubot/system_posix.py
 +++ b/neubot/system_posix.py
 @@ -32,9 +32,7 @@
- # the latter can.
+ # where the `_neubot` user does not exist.
  #
- 
 -USER = '@USER@'
 -if USER.startswith('@'):
 -    USER='nobody'
