@@ -21,8 +21,8 @@
 # along with Neubot.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-VERSION = 0.4.15
-MIRROR = http://releases.neubot.org/snapshots
+VERSION = 0.4.15.3
+MIRROR = http://releases.neubot.org/_packages
 SOURCE = neubot-$(VERSION).tar.gz
 
 .PHONY: all
