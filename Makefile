@@ -22,6 +22,7 @@
 #
 
 VERSION = 0.4.15.6
+NUMERIC_VERSION = 0.004015006
 MIRROR = http://releases.neubot.org/_packages
 SOURCE = neubot-$(VERSION).tar.gz
 
@@ -36,4 +37,7 @@ all:
 	for PATCH in $$(ls *.patch); do					\
 		(cd neubot-$(VERSION) && patch -Np1 -i ../$$PATCH);	\
 	done
-	sudo ./MacOS/makepkg.py $(VERSION) `python utils_version.py $(VERSION)`
+	sed -i 's/@NUMERIC_VERSION@/$(NUMERIC_VERSION)/g' \
+	  MacOS/basedir-skel/versiondir-skel/org.neubot.notifier.plist.in > \
+	  MacOS/basedir-skel/versiondir-skel/org.neubot.notifier.plist
+	sudo ./MacOS/makepkg.py $(VERSION) $(NUMERIC_VERSION)
