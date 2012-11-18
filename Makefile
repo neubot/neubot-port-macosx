@@ -21,7 +21,7 @@
 # along with Neubot.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-VERSION = 0.4.15.5
+VERSION = 0.4.15.6
 MIRROR = http://releases.neubot.org/_packages
 SOURCE = neubot-$(VERSION).tar.gz
 
