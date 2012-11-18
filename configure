@@ -1,0 +1,45 @@
+#!/bin/sh -e
+
+#
+# Copyright (c) 2012
+#     Nexa Center for Internet & Society, Politecnico di Torino (DAUIN)
+#     and Simone Basso <bassosimone@gmail.com>
+#
+# This file is part of Neubot <http://www.neubot.org/>.
+#
+# Neubot is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Neubot is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Neubot.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+# Configures Neubot's MacOS port
+
+CANONICAL_VERSION=0.4.15.6
+echo "configure: canonical version: $CANONICAL_VERSION"
+
+MAJOR=$(echo $CANONICAL_VERSION|awk -F. '{print $1}')
+MINOR=$(echo $CANONICAL_VERSION|awk -F. '{print $2}')
+PATCH=$(echo $CANONICAL_VERSION|awk -F. '{print $3}')
+RCNUM=$(echo $CANONICAL_VERSION|awk -F. '{print $4}')
+NUMERIC_VERSION=$(printf "%d.%03d%03d%03d" $MAJOR $MINOR $PATCH $RCNUM)
+echo "configure: numeric version: $NUMERIC_VERSION"
+
+OUTPUT_FILES="MacOS/basedir-skel/versiondir-skel/org.neubot.notifier.plist"
+OUTPUT_FILES="Makefile $OUTPUT_FILES"
+for FILE in $OUTPUT_FILES; do
+    echo "configure: $FILE.in -> $FILE"
+    sed -e "s/@CANONICAL_VERSION@/$CANONICAL_VERSION/g"			\
+        -e "s/@NUMERIC_VERSION@/$NUMERIC_VERSION/g"			\
+        $FILE.in > $FILE
+done
+
+echo 'configure: now you can run `make`'
