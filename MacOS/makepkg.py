@@ -140,6 +140,12 @@ def main():
                     ignore=IGNORER
                    )
 
+    shutil.copytree(
+                    '../neubot-%s/mod_dash' % VERSION,
+                    'neubot/%s/mod_dash' % NUMERIC_VERSION,
+                    ignore=IGNORER
+                   )
+
     #
     # Copy scripts.  Note that start.sh and the plist file
     # must be in /usr/local/share/neubot while the rest goes
