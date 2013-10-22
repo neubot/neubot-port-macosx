@@ -21,10 +21,7 @@
 # along with Neubot.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-'''
- Creates neubot-VERSION.pkg for MacOSX and generates the update tarball for
- auto-updating Neubots.
-'''
+''' Make MacOS Neubot packages '''
 
 import traceback
 import tarfile
@@ -71,6 +68,18 @@ def _sign(sig, tarball):
     if privkey:
         __call('openssl dgst -sha256 -sign %s -out %s %s' %
            (privkey, sig, tarball))
+
+def _fixup_perms():
+
+    '''
+     Fix group ownership: we want wheel and not staff.  This happens
+     on MacOS because 'BSD derived systems always have the setgid
+     directory behavior.'
+
+     See <http://comments.gmane.org/gmane.os.openbsd.misc/187993>
+    '''
+
+    __call('find neubot/ -exec chown root:wheel {} \;')
 
 def _init():
 
@@ -152,23 +161,6 @@ def _make_sharedir():
     shutil.copy('../neubot-%s/UNIX/man/man1/neubot.1' % VERSION,
                 'neubot/%s' % NUMERIC_VERSION)
 
-def _add_okfile():
-    ''' Add okfile to VERSIONDIR '''
-    filep = open('neubot/%s/.neubot-installed-ok' % NUMERIC_VERSION, 'w')
-    filep.close()
-
-def _fixup_perms():
-
-    '''
-     Fix group ownership: we want wheel and not staff.  This happens
-     on MacOS because 'BSD derived systems always have the setgid
-     directory behavior.'
-
-     See <http://comments.gmane.org/gmane.os.openbsd.misc/187993>
-    '''
-
-    __call('find neubot/ -exec chown root:wheel {} \;')
-
 def _make_auto_update():
 
     ''' Create, checksum and sign the update for autoupdating clients '''
@@ -215,6 +207,11 @@ def _compile():
     '''
 
     compileall.compile_dir('neubot/%s' % NUMERIC_VERSION)
+
+def _add_okfile():
+    ''' Add okfile to VERSIONDIR '''
+    filep = open('neubot/%s/.neubot-installed-ok' % NUMERIC_VERSION, 'w')
+    filep.close()
 
 def _make_archive_pax():
     ''' Create an archive containing neubot library '''
