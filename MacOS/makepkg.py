@@ -81,12 +81,15 @@ def _fixup_perms():
 
     _call('find neubot/ -exec chown root:wheel {} \;')
 
-def _init():
+def main():
+    ''' Main function '''
 
-    '''
-     Make sure we start from a clean environment and that
-     we have a sane umask.
-    '''
+    #
+    # Step 1
+    #
+    # Make sure we start from a clean environment and that
+    # we have a sane umask.
+    #
 
     #
     # If we don't run the program as root we produce Archive.bom
@@ -105,24 +108,32 @@ def _init():
     if os.path.lexists('Privacy/build'):
         shutil.rmtree('Privacy/build')
 
-def _make_package():
-    ''' Creates package copying from package skeleton '''
+    if not os.path.exists('../dist'):
+        os.mkdir('../dist')
+    if not os.path.exists('../dist/macos'):
+        os.mkdir('../dist/macos')
+
+    #
+    # Step 2
+    #
+    # Create package by copying from the package skeleton
+    #
+
     shutil.copytree(
                     'neubot-pkg',
                     'neubot-%s.pkg' % VERSION,
                     ignore=IGNORER
                    )
 
-def _make_sharedir():
+    #
+    # Step 3
+    #
+    # Creates and populates the directory that will be copied
+    # to /usr/local/share/neubot.  In particular, put there
+    # Neubot sources; compile them; and copy all the scripts
+    # we need to have in there.
+    #
 
-    '''
-     Creates and populates the directory that will be copied
-     to /usr/local/share/neubot.  In particular, put there
-     Neubot sources; compile them; and copy all the scripts
-     we need to have in there.
-    '''
-
-    # Copy neubot sources
     shutil.copytree(
                     '../neubot-%s/neubot' % VERSION,
                     'neubot/%s/neubot' % NUMERIC_VERSION,
@@ -134,23 +145,30 @@ def _make_sharedir():
     # must be in /usr/local/share/neubot while the rest goes
     # into the version-specific directory.
     #
+
     shutil.copy('basedir-skel/start.sh', 'neubot')
+
     shutil.copy('basedir-skel/org.neubot.plist', 'neubot')
 
     shutil.copy('basedir-skel/versiondir-skel/cmdline.sh',
                 'neubot/%s' % NUMERIC_VERSION)
+
     shutil.copy('basedir-skel/versiondir-skel/start.sh',
                 'neubot/%s' % NUMERIC_VERSION)
+
     shutil.copy('basedir-skel/versiondir-skel/prerun.sh',
                 'neubot/%s' % NUMERIC_VERSION)
+
     shutil.copy('basedir-skel/versiondir-skel/uninstall.sh',
                 'neubot/%s' % NUMERIC_VERSION)
-    shutil.copy('../pubkey.pem',
-                'neubot/%s' % NUMERIC_VERSION)
+
+    shutil.copy('../pubkey.pem', 'neubot/%s' % NUMERIC_VERSION)
+
     shutil.copy('basedir-skel/versiondir-skel/org.neubot.notifier.plist',
                 'neubot/%s' % NUMERIC_VERSION)
 
-    # Build and copy Neubot.app too
+    # Copy Neubot.app too
+
     shutil.copytree(
                     'basedir-skel/versiondir-skel/Neubot-app',
                     'neubot/%s/Neubot.app' % NUMERIC_VERSION,
@@ -158,23 +176,32 @@ def _make_sharedir():
                    )
 
     # Add manual page(s)
+
     shutil.copy('../neubot-%s/UNIX/man/man1/neubot.1' % VERSION,
                 'neubot/%s' % NUMERIC_VERSION)
 
-def _make_auto_update():
+    #
+    # Step 4
+    #
+    # Fix the permissions and ownership of what we have created so far,
+    # so we put sensible stuff into the autoupdate tarball.
+    #
 
-    ''' Create, checksum and sign the update for autoupdating clients '''
+    _fixup_perms()
 
-    if not os.path.exists('../dist'):
-        os.mkdir('../dist')
-    if not os.path.exists('../dist/macos'):
-        os.mkdir('../dist/macos')
+    #
+    # Step 5
+    #
+    # Create, checksum, and sign the tarball that contains the updated
+    # code for auto-updating clients.
+    #
 
     tarball = '../dist/macos/%s.tar.gz' % NUMERIC_VERSION
     sha256sum = '../dist/macos/%s.tar.gz.sha256' % NUMERIC_VERSION
     sig = '../dist/macos/%s.tar.gz.sig' % NUMERIC_VERSION
 
     # Create tarball
+
     arch = tarfile.open(tarball, 'w:gz')
     os.chdir('neubot')
     arch.add('%s' % NUMERIC_VERSION)
@@ -182,6 +209,7 @@ def _make_auto_update():
     os.chdir(MACOSDIR)
 
     # Calculate sha256sum
+
     filep = open(tarball, 'rb')
     hashp = hashlib.new('sha256')
     content = filep.read()
@@ -190,50 +218,71 @@ def _make_auto_update():
     filep.close()
 
     # Write sha256sum
+
     filep = open(sha256sum, 'wb')
     filep.write('%s  %s\n' % (digest, os.path.basename(tarball)))
     filep.close()
+
+    # Sign the tarball
 
     os.chdir('../dist/macos')
     _sign(os.path.basename(sig), os.path.basename(tarball))
     os.chdir(MACOSDIR)
 
-def _compile():
-
-    '''
-     Compile sources at VERSIONDIR.  This is a separate function
-     because we need to compile sources after we've created the
-     update tarball for automatic updates.
-    '''
+    #
+    # Step 6
+    #
+    # Compile the sources at VERSIONDIR. We compile the sources after
+    # we created the auto-update tarball, because we don't ship the
+    # .pyc files into the auto-update tarball.
+    #
 
     compileall.compile_dir('neubot/%s' % NUMERIC_VERSION)
 
-def _add_okfile():
-    ''' Add okfile to VERSIONDIR '''
+    #
+    # Step 7
+    #
+    # Add the okfile to VERSIONDIR. We add the okfile after we created
+    # the auto-update tarball, because the okfile MUST NOT go inside the
+    # auto-update tarball.
+    #
+
     filep = open('neubot/%s/.neubot-installed-ok' % NUMERIC_VERSION, 'w')
     filep.close()
 
-def _make_archive_pax():
-    ''' Create an archive containing neubot library '''
+    #
+    # Step 8
+    #
+    # Fix again the permission and ownership, to include also the
+    # files that we created in step 6 and 7.
+    #
+
+    _fixup_perms()
+
+    #
+    # Step 9
+    #
+    # Create the archive that contains the stuff to install, and also
+    # prepare the related bill of materials (BOM).
+    #
+
     _call('pax -wzf %s -x cpio %s' %
        (
         'neubot-%s.pkg/Contents/Archive.pax.gz' % VERSION,
         'neubot'
        ))
 
-def _make_archive_bom():
-    ''' Create bill of materials for neubot library '''
     _call('mkbom %s %s' %
        (
         'neubot',
         'neubot-%s.pkg/Contents/Archive.bom' % VERSION,
        ))
 
-def _create_tarball():
-    ''' Create the tgz file in ../dist ready for distribution '''
-
-    if not os.path.exists('../dist'):
-        os.mkdir('../dist')
+    #
+    # Step 10
+    #
+    # Stuff the .pkg directory into a .tar.gz, and sign the .tar.gz
+    #
 
     path = '../dist/neubot-%s.pkg.tgz' % VERSION
 
@@ -244,32 +293,6 @@ def _create_tarball():
     os.chdir("../dist")
     _sign(os.path.basename(path + ".sig"), os.path.basename(path))
     os.chdir(MACOSDIR)
-
-def main():
-    ''' Main function '''
-
-    _init()
-    _make_package()
-
-    #
-    # We make autoupdate before compiling because we're not
-    # interested in shipping .pyc files in the autoupdate.
-    # The second _fixup_perms() is to fixup the permissions of
-    # the .pyc compiled by __compile().
-    # Similarly, we add okfile after we've created the auto
-    # update because okfile should not be part of the set of
-    # files distributed with an autoupdate.
-    #
-    _make_sharedir()
-    _fixup_perms()
-    _make_auto_update()
-    _compile()
-    _fixup_perms()
-    _add_okfile()
-
-    _make_archive_pax()
-    _make_archive_bom()
-    _create_tarball()
 
 if __name__ == '__main__':
     try:
