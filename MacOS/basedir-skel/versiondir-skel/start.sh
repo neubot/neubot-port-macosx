@@ -53,4 +53,4 @@ $VERSIONDIR/prerun.sh
 # because unix.py is python3-safe and the updater must be
 # robust to unexpected upgrades of the system python.
 #
-exec /usr/bin/python $VERSIONDIR/neubot/updater/unix.py -D
+exec /usr/bin/python $VERSIONDIR/neubot/updater/unix.py -ad
