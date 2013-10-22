@@ -79,7 +79,7 @@ def _fixup_perms():
      See <http://comments.gmane.org/gmane.os.openbsd.misc/187993>
     '''
 
-    _call('find neubot/ -exec chown root:wheel {} \;')
+    _call(r'find neubot/ -exec chown root:wheel {} \;')
 
 def main():
     ''' Main function '''
