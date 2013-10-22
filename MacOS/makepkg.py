@@ -185,7 +185,12 @@ def _make_auto_update():
     filep.write('%s  %s\n' % (digest, os.path.basename(tarball)))
     filep.close()
 
-    # Make digital signature
+    os.chdir('../dist/macos')
+    _sign(os.path.basename(sig), os.path.basename(tarball))
+    os.chdir(MACOSDIR)
+
+def _sign(sig, tarball):
+    """ Make digital signature """
     try:
         filenam = os.sep.join([os.environ['HOME'], '.neubot-macos'])
         filep = open(filenam, 'r')
@@ -198,10 +203,8 @@ def _make_auto_update():
     if not privkey:
         privkey = raw_input('Enter privkey location: ')
     if privkey:
-        os.chdir('../dist/macos')
         __call('openssl dgst -sha256 -sign %s -out %s %s' %
-           (privkey, os.path.basename(sig), os.path.basename(tarball)))
-        os.chdir(MACOSDIR)
+           (privkey, sig, tarball))
 
 def _compile():
 
@@ -235,9 +238,15 @@ def _create_tarball():
     if not os.path.exists('../dist'):
         os.mkdir('../dist')
 
-    arch = tarfile.open('../dist/neubot-%s.pkg.tgz' % VERSION, 'w:gz')
+    path = '../dist/neubot-%s.pkg.tgz' % VERSION
+
+    arch = tarfile.open(path, 'w:gz')
     arch.add('neubot-%s.pkg' % VERSION)
     arch.close()
+
+    os.chdir("../dist")
+    _sign(os.path.basename(path + ".sig"), os.path.basename(path))
+    os.chdir(MACOSDIR)
 
 def main():
     ''' Main function '''
