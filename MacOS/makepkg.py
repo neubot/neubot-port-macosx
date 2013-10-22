@@ -80,6 +80,9 @@ def _fixup_perms():
     '''
 
     _call(r'find neubot/ -exec chown root:wheel {} \;')
+    _call(r'find neubot/ -type d -perm 700 -exec chmod 755 {} \;')
+    _call(r'find neubot/ -type f -perm 700 -exec chmod 755 {} \;')
+    _call(r'find neubot/ -type f -perm 600 -exec chmod 644 {} \;')
 
 def main():
     ''' Main function '''
