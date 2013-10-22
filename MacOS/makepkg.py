@@ -55,6 +55,23 @@ def __call(cmdline):
     if retval != 0:
         sys.exit(1)
 
+def _sign(sig, tarball):
+    """ Make digital signature """
+    try:
+        filenam = os.sep.join([os.environ['HOME'], '.neubot-macos'])
+        filep = open(filenam, 'r')
+        privkey = filep.read().strip()
+        filep.close()
+    except (SystemExit, KeyboardInterrupt):
+        raise
+    except:
+        privkey = None
+    if not privkey:
+        privkey = raw_input('Enter privkey location: ')
+    if privkey:
+        __call('openssl dgst -sha256 -sign %s -out %s %s' %
+           (privkey, sig, tarball))
+
 def _init():
 
     '''
@@ -188,23 +205,6 @@ def _make_auto_update():
     os.chdir('../dist/macos')
     _sign(os.path.basename(sig), os.path.basename(tarball))
     os.chdir(MACOSDIR)
-
-def _sign(sig, tarball):
-    """ Make digital signature """
-    try:
-        filenam = os.sep.join([os.environ['HOME'], '.neubot-macos'])
-        filep = open(filenam, 'r')
-        privkey = filep.read().strip()
-        filep.close()
-    except (SystemExit, KeyboardInterrupt):
-        raise
-    except:
-        privkey = None
-    if not privkey:
-        privkey = raw_input('Enter privkey location: ')
-    if privkey:
-        __call('openssl dgst -sha256 -sign %s -out %s %s' %
-           (privkey, sig, tarball))
 
 def _compile():
 
