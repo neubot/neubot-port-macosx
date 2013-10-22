@@ -23,7 +23,7 @@
 
 # Configures Neubot's MacOS port
 
-CANONICAL_VERSION=0.4.15.6
+CANONICAL_VERSION=0.4.16.8
 echo "configure: canonical version: $CANONICAL_VERSION"
 
 MAJOR=$(echo $CANONICAL_VERSION|awk -F. '{print $1}')
