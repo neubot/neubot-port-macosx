@@ -229,27 +229,6 @@ def _make_archive_bom():
         'neubot-%s.pkg/Contents/Archive.bom' % VERSION,
        ))
 
-def _make_privacy_plugin():
-
-    '''
-     Compile privacy plugin and copy the needed files into the
-     package so that the installer will ask for privacy permissions
-     during the setup.
-    '''
-
-    os.chdir('Privacy')
-    __call('xcodebuild')
-    os.chdir('..')
-
-    shutil.copytree(
-                    'Privacy/build/Release/Privacy.bundle',
-                    'neubot-%s.pkg/Contents/Plugins/Privacy.bundle' % VERSION,
-                   )
-    shutil.copy(
-                'Privacy/InstallerSections.plist',
-                'neubot-%s.pkg/Contents/Plugins/' % VERSION,
-               )
-
 def _create_tarball():
     ''' Create the tgz file in ../dist ready for distribution '''
 
@@ -284,7 +263,6 @@ def main():
 
     _make_archive_pax()
     _make_archive_bom()
-    _make_privacy_plugin()
     _create_tarball()
 
 if __name__ == '__main__':
