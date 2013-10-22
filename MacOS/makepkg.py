@@ -46,7 +46,7 @@ NUMERIC_VERSION = sys.argv[2]
 
 IGNORER = shutil.ignore_patterns('.DS_Store')
 
-def __call(cmdline):
+def _call(cmdline):
     ''' exit() if the subprocess fails '''
     retval = subprocess.call(shlex.split(cmdline))
     if retval != 0:
@@ -66,7 +66,7 @@ def _sign(sig, tarball):
     if not privkey:
         privkey = raw_input('Enter privkey location: ')
     if privkey:
-        __call('openssl dgst -sha256 -sign %s -out %s %s' %
+        _call('openssl dgst -sha256 -sign %s -out %s %s' %
            (privkey, sig, tarball))
 
 def _fixup_perms():
@@ -79,7 +79,7 @@ def _fixup_perms():
      See <http://comments.gmane.org/gmane.os.openbsd.misc/187993>
     '''
 
-    __call('find neubot/ -exec chown root:wheel {} \;')
+    _call('find neubot/ -exec chown root:wheel {} \;')
 
 def _init():
 
@@ -215,7 +215,7 @@ def _add_okfile():
 
 def _make_archive_pax():
     ''' Create an archive containing neubot library '''
-    __call('pax -wzf %s -x cpio %s' %
+    _call('pax -wzf %s -x cpio %s' %
        (
         'neubot-%s.pkg/Contents/Archive.pax.gz' % VERSION,
         'neubot'
@@ -223,7 +223,7 @@ def _make_archive_pax():
 
 def _make_archive_bom():
     ''' Create bill of materials for neubot library '''
-    __call('mkbom %s %s' %
+    _call('mkbom %s %s' %
        (
         'neubot',
         'neubot-%s.pkg/Contents/Archive.bom' % VERSION,
